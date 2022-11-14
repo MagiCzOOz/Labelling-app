@@ -1,0 +1,49 @@
+.App {
+    padding-left: 30px;
+    padding-right: 30px;
+    min-height: 100vh;
+    background: hsl(0, 0%, 10%);
+    color: white;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.mainColumn {
+    width: 80%;
+    padding-right: 10px;
+}
+
+.sideColumn {
+    width: 20%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.loginRegister {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

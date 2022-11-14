@@ -1,0 +1,129 @@
+$primary-color: hsl(0, 0%, 10%);
+
+.labelForm {
+    width: 100%;
+    text-align: center;
+}
+
+.radioOptions {
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.radioOptions label {
+    padding-right: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    display: flex;
+    cursor: pointer;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.375em;
+    input {
+        position: absolute;
+        left: -9999px;
+        &:checked + span {
+            background-color: mix(#fff, $primary-color, 84%);
+            color: $primary-color;
+            &:before {
+                box-shadow: inset 0 0 0 0.4375em $primary-color;
+            }
+        }
+    }
+    span {
+        display: flex;
+        align-items: center;
+        padding: 0.375em 0.75em 0.375em 0.375em;
+        border-radius: 99em; // or something higher...
+        transition: 0.25s ease;
+        &:hover {
+            background-color: mix(#fff, $primary-color, 84%);
+            color: $primary-color;
+        }
+        &:before {
+            display: flex;
+            flex-shrink: 0;
+            content: '';
+            background-color: #fff;
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 50%;
+            margin-right: 0.375em;
+            transition: 0.25s ease;
+            box-shadow: inset 0 0 0 0.125em $primary-color;
+        }
+    }
+}
+
+.formButtons {
+    position: relative;
+    display: inline-block;
+}
+
+.submitButton {
+    margin-right: 50px;
+    border-radius: 15px;
+    padding: 10px 28px;
+    border-color: #04aa6d;
+    color: green;
+}
+
+.submitButton:hover {
+    background-color: #04aa6d;
+    color: white;
+}
+
+.strongLevelButton {
+    margin-right: 50px;
+    border-radius: 15px;
+    padding: 10px;
+    border-color: #f44336;
+    color: red;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.strongLevelButton:hover {
+    background: #f44336;
+    color: white;
+}
+
+.weakLevelButton {
+    margin-right: 50px;
+    border-radius: 15px;
+    padding: 10px;
+    border-color: #ff9800;
+    color: orange;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.weakLevelButton:hover {
+    background: #ff9800;
+    color: white;
+}
+
+.strongLevelButton:hover .strongLevelIcon {
+    color: white;
+}
+
+.weakLevelButton:hover .weakLevelIcon {
+    color: white;
+}
+
+.strongLevelIcon {
+    height: 2rem;
+    width: 2rem;
+    color: red;
+    padding-right: 0.3rem;
+}
+
+.weakLevelIcon {
+    height: 2rem;
+    width: 2rem;
+    color: orange;
+    padding-right: 0.3rem;
+}

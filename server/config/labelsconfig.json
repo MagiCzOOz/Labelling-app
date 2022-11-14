@@ -1,0 +1,7 @@
+{
+    "labels": {
+        "groupLabels1": ["label1", "label2", "label3", "label4"],
+        "groupLabels2": ["labelA", "labelB", "labelC", "labelD"]
+    },
+    "issues": ["toDelete", "uncategorized"]
+}
