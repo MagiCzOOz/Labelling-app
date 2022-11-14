@@ -7,6 +7,7 @@ This Web app allows you to easily tag video clips with predefined labels. It can
 This project is fully written in [TypeScript](https://www.typescriptlang.org/). The client has been implemented in [React](https://reactjs.org/) and bootstrapped using [Creat React App](https://github.com/facebook/create-react-app). The server uses [Node.js](https://nodejs.org/), [express](https://expressjs.com/), and [MySQL](https://www.mysql.com).
 
 The tool comes with a simple, secure, and convenient authentication mechanism allowing an evaluation of the label distribution among each user and therefore detecting and filtering potential user biases in the annotation.
+
 <a name="screenshot"></a>
 ![Screenshot from 2022-11-09 18-16-50.png](./_resources/Screenshot_1.png)
 
@@ -64,7 +65,7 @@ To host the app on your server or VM with minimal effort:
 1.  Clone this repository
     
     ```sh
-    $ git clone https://github.com/MagiCzOOz/labellingApp
+    $ git clone https://github.com/MagiCzOOz/Labelling-app
     ```
     
 2.  Edit the JSON file `./server/config/labelsconfig.json` with your labels :
