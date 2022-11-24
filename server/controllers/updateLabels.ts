@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 
 import pool from '../config/database';
-import { LabelConfig } from '../config/labels';
 import { DatabaseConnectionError, UnauthorizedError } from '../models/customErrors';
 import httpStatusCodes from '../models/httpStatusCodes';
 import { appLogger } from '../utils/logger';
 
-export const updateLabels = async (req: Request, res: Response, next: NextFunction) => {
-    if (req.session.user) {
+const updateLabels = async (req: Request, res: Response, next: NextFunction) => {
+    if (req.session.user && req.body.clip) {
         const userId = req.session.user.id;
         let sql = 'UPDATE clips SET ';
         Object.keys(req.body.clipLabels).map((key: string) => {
@@ -34,6 +33,4 @@ export const updateLabels = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const sendLabels = (req: Request, res: Response) => {
-    res.status(httpStatusCodes.OK).send(LabelConfig);
-};
+export default updateLabels;

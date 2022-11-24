@@ -5,7 +5,7 @@ export default async function fetchNextClip() {
             method: 'GET',
             credentials: allowCredentials,
             headers: {
-                'x-access-token': localStorage.getItem('token') as string,
+                'x-access-token': localStorage.getItem('accessToken') as string,
             },
         };
         const response = await fetch(process.env.REACT_APP_BASE_URL + '/clip', requestOptions);

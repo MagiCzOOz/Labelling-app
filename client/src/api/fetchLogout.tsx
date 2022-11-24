@@ -6,10 +6,9 @@ export default async function fetchLogout() {
             credentials: allowCredentials,
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': localStorage.getItem('token') as string,
+                'x-access-token': localStorage.getItem('accessToken') as string,
             },
         };
-
         const response = await fetch(process.env.REACT_APP_BASE_URL + '/logout', requestOptions);
         const message = response.text();
         return message;

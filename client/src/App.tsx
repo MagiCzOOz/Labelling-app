@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.scss';
 
+import applyFetchInterceptor from './api/applyFetchInterceptor';
 import fetchUserCredentials from './api/fetchUserCredentials';
 import VideoPlayer from './components//video_player/VideoPlayer';
 import Footer from './components/Footer';
@@ -18,26 +19,28 @@ export type LabelConfig = {
     labelFormModel: Record<string, boolean>;
 };
 
-export type UserResponse = {
-    loggedIn?: boolean;
-    user?: {
-        id: number;
-        username: string;
-    };
-    message?: string;
-    token?: string;
-    error?: string;
+export type ErrorMessage = {
+    error: string;
+};
+
+export type Authentication = {
+    loggedIn: boolean;
+    accessToken?: string;
+    refreshToken?: string;
 };
 
 export default function App() {
     const [loginStatus, setLoginStatus] = React.useState<boolean>(false);
+
+    applyFetchInterceptor(setLoginStatus);
+
     const { labelConfig } = initLabels(loginStatus);
     const { currentClip, setCurrentClip, setPreviousClip } = initClip(loginStatus);
 
     React.useEffect(() => {
         fetchUserCredentials('GET', false)
-            .then((response: UserResponse) => {
-                setLoginStatus(response.loggedIn || false);
+            .then((response: Authentication | ErrorMessage) => {
+                if (!('error' in response)) setLoginStatus(response.loggedIn || false);
             })
             .catch((err) => {
                 console.log(err);

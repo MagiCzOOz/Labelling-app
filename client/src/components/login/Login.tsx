@@ -2,7 +2,7 @@ import React from 'react';
 import './LoginStyles.scss';
 import { useForm } from 'react-hook-form';
 
-import type { UserResponse } from '../../App';
+import type { Authentication, ErrorMessage } from '../../App';
 import fetchUserCredentials from '../../api/fetchUserCredentials';
 
 export type UserCredentials = {
@@ -17,13 +17,20 @@ export default function Login({ setLoginStatus }: { setLoginStatus: React.Dispat
 
     const onSubmit = (data: UserCredentials) => {
         fetchUserCredentials('POST', false, data)
-            .then((response: UserResponse) => {
-                if (response.token) {
-                    localStorage.setItem('token', response.token);
-                    setLoginError(null);
+            .then((response: Authentication | ErrorMessage) => {
+                if ('error' in response) {
+                    setLoginError(response.error);
+                    setLoginStatus(false);
+                } else {
+                    if (response.accessToken) {
+                        localStorage.setItem('accessToken', response.accessToken);
+                        setLoginError(null);
+                    }
+                    if (response.refreshToken) {
+                        localStorage.setItem('refreshToken', response.refreshToken);
+                    }
+                    setLoginStatus(response.loggedIn || false);
                 }
-                if (response.error) setLoginError(response.error);
-                setLoginStatus(response.loggedIn || false);
             })
             .catch((err) => {
                 console.log(err);

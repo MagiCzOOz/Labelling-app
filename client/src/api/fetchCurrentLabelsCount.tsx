@@ -4,7 +4,7 @@ export default async function fetchCurrentLabelsCount(issues: boolean) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': localStorage.getItem('token') as string,
+                'x-access-token': localStorage.getItem('accessToken') as string,
             },
         };
         let endpoint = 'countLabel';

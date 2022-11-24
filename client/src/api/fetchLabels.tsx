@@ -1,12 +1,16 @@
 import type { Clip } from '../components/video_player/VideoPlayer';
 
-export default async function fetchLabel(method: 'POST' | 'GET', clipLabels?: Record<string, boolean>, clip?: Clip) {
+export default async function fetchLabels(method: 'POST' | 'GET', clipLabels?: Record<string, boolean>, clip?: Clip) {
     try {
         const allowCredentials: RequestCredentials = 'include';
         const requestOptions = {
             method: method,
             credentials: allowCredentials,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-access-token': localStorage.getItem('accessToken') as string,
+            },
+
             ...(method === 'POST' ? { body: JSON.stringify({ clipLabels: clipLabels, clip: clip }) } : {}),
         };
 

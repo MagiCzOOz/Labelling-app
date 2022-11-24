@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 
-import { BadRequestError, UnauthorizedError } from '../models/customErrors';
+import { UnauthorizedError } from '../models/customErrors';
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['x-access-token'] as string;
@@ -10,7 +10,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     } else {
         jwt.verify(token, process.env.JWT_SECRET_KEY as Secret, (err, decoded) => {
             if (err) {
-                next(new BadRequestError('Request made with a bad JWT.', true));
+                next(new UnauthorizedError('Request made with a bad JWT.', true));
             } else {
                 req.session.user = (({ id, username }) => ({ id, username }))(decoded as JwtPayload);
                 next();

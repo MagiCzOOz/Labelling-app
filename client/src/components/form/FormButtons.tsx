@@ -40,7 +40,7 @@ export default function FormButtons({
     const onClick = () => {
         reset(defaultValues);
         setValue(name, true, { shouldValidate: true });
-        handleSubmit(onSubmit)();
+        handleSubmit(onSubmit);
     };
 
     return (

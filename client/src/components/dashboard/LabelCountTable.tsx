@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTable, Column, TableOptions, UseTableInstanceProps } from 'react-table';
 
+import type { ErrorMessage } from '../../App';
 import fetchCurrentLabelsCount from '../../api/fetchCurrentLabelsCount';
 import type { Clip } from '../video_player/VideoPlayer';
 
@@ -42,8 +43,8 @@ export default function LabelCountTable({
     /* Fetch the new count when we change the current clip */
     React.useEffect(() => {
         fetchCurrentLabelsCount(issues)
-            .then((count: LabelCountData[]) => {
-                setLabelCount(count);
+            .then((count: LabelCountData[] | ErrorMessage) => {
+                if (!('error' in count)) setLabelCount(count);
             })
             .catch((err) => {
                 console.log(err);

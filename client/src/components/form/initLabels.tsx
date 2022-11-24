@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { LabelConfig } from '../../App';
-import fetchLabel from '../../api/fetchLabel';
+import type { LabelConfig, ErrorMessage } from '../../App';
+import fetchLabels from '../../api/fetchLabels';
 
 const initialConfigState = {
     labels: {},
@@ -16,9 +16,9 @@ export default function initLabels(loginStatus: boolean) {
 
     React.useEffect(() => {
         if (loginStatus) {
-            fetchLabel('GET')
-                .then((result: LabelConfig) => {
-                    setLabelConfig(result);
+            fetchLabels('GET')
+                .then((result: LabelConfig | ErrorMessage) => {
+                    if (!('error' in result)) setLabelConfig(result);
                 })
                 .catch((err) => {
                     console.log(err);

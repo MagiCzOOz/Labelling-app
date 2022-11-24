@@ -4,9 +4,14 @@ import { MdLogout } from 'react-icons/md';
 import fetchLogout from '../../api/fetchLogout';
 
 const logout = (setLoginStatus: React.Dispatch<React.SetStateAction<boolean>>) => {
-    fetchLogout();
-    setLoginStatus(false);
-    localStorage.clear();
+    fetchLogout()
+        .then(() => {
+            setLoginStatus(false);
+            localStorage.clear();
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 export default function LogoutButton({

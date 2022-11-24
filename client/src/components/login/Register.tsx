@@ -2,9 +2,13 @@ import React from 'react';
 import './LoginStyles.scss';
 import { useForm } from 'react-hook-form';
 
-import type { UserResponse } from '../../App';
+import type { ErrorMessage } from '../../App';
 import fetchUserCredentials from '../../api/fetchUserCredentials';
 import type { UserCredentials } from './Login';
+
+type Registration = {
+    message: string;
+};
 
 export default function Register() {
     const { register, handleSubmit } = useForm<UserCredentials>();
@@ -13,11 +17,11 @@ export default function Register() {
 
     const onSubmit = (data: UserCredentials) => {
         fetchUserCredentials('POST', true, data)
-            .then((response: UserResponse) => {
-                if (response.error) {
+            .then((response: Registration | ErrorMessage) => {
+                if ('error' in response) {
                     setRegisterError(response.error);
                     setRegisterSuccess(null);
-                } else if (response.message) {
+                } else {
                     setRegisterError(null);
                     setRegisterSuccess(response.message);
                 }

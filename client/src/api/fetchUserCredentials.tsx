@@ -13,7 +13,7 @@ export default async function fetchUserCredentials(
             headers: {
                 'Content-Type': 'application/json',
 
-                ...(method === 'GET' ? { 'x-access-token': localStorage.getItem('token') || '' } : {}),
+                ...(method === 'GET' ? { 'x-access-token': localStorage.getItem('accessToken') || '' } : null),
             },
 
             ...(method === 'POST' ? { body: JSON.stringify(credentials) } : {}),

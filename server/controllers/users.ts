@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from 'express';
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import mysql from 'mysql';
 
 import pool from '../config/database';
@@ -39,7 +39,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const getUser = (req: Request, res: Response, next: NextFunction) => {
     if (req.session.user) {
-        res.status(httpStatusCodes.OK).send({ loggedIn: true, user: req.session.user });
+        res.status(httpStatusCodes.OK).send({ loggedIn: true });
     } else {
         next(new UnauthorizedError('User not properly authenticated.', true));
     }
@@ -57,12 +57,19 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             bcrypt.compare(password, rows[0].password, (error, response) => {
                 if (response) {
                     const id = rows[0].id;
-                    const token = jwt.sign({ id, username }, process.env.JWT_SECRET_KEY as Secret, {
-                        expiresIn: '1 days',
+                    const accessToken = jwt.sign({ id, username }, process.env.JWT_SECRET_KEY as Secret, {
+                        expiresIn: '300s',
+                    });
+                    const refreshToken = jwt.sign({ id, username }, process.env.JWT_REFRESH_KEY as Secret, {
+                        expiresIn: '10d',
                     });
                     req.session.user = (({ id, username }) => ({ id, username }))(rows[0]);
                     authLogger.info(`User ${req.session.user.id} successfully logged in.`);
-                    res.status(httpStatusCodes.OK).send({ loggedIn: true, user: req.session.user, token: token });
+                    res.status(httpStatusCodes.OK).send({
+                        loggedIn: true,
+                        accessToken: accessToken,
+                        refreshToken: refreshToken,
+                    });
                 } else {
                     next(new BadRequestError('Wrong password.', true));
                 }
@@ -71,6 +78,25 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             next(new NotFoundError("Username doesn't exist.", true));
         }
     });
+};
+
+export const refreshToken = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers['x-refresh-token'] as string;
+    if (!token) {
+        next(new UnauthorizedError('Unable to find a refresh token. Please, try to re-authenticate correctly', true));
+    } else {
+        jwt.verify(token, process.env.JWT_REFRESH_KEY as Secret, (err, decoded) => {
+            if (err) {
+                next(new BadRequestError('Request made with a bad refresh token.', true));
+            } else {
+                req.session.user = (({ id, username }) => ({ id, username }))(decoded as JwtPayload);
+                const refreshedToken = jwt.sign(req.session.user, process.env.JWT_SECRET_KEY as Secret, {
+                    expiresIn: '10s',
+                });
+                res.status(httpStatusCodes.OK).send({ loggedIn: true, accessToken: refreshedToken });
+            }
+        });
+    }
 };
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {

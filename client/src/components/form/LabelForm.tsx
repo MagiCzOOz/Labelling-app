@@ -3,7 +3,7 @@ import './FormStyles.scss';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import type { LabelConfig } from '../../App';
-import fetchLabel from '../../api/fetchLabel';
+import fetchLabels from '../../api/fetchLabels';
 import type { Clip } from '../video_player/VideoPlayer';
 import FormButtons from './FormButtons';
 import FormValues from './FormValues';
@@ -23,7 +23,7 @@ export default function LabelForm({
 
     const onSubmit: SubmitHandler<typeof labelConfig.labelFormModel> = (data) => {
         if (currentClip) {
-            fetchLabel('POST', data, currentClip)
+            fetchLabels('POST', data, currentClip)
                 .then(() => {
                     currentClip.labels = data;
                     setPreviousClip(currentClip);
