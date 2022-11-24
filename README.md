@@ -9,6 +9,7 @@ This project is fully written in [TypeScript](https://www.typescriptlang.org/). 
 The tool comes with a simple, secure, and convenient authentication mechanism allowing an evaluation of the label distribution among each user and therefore detecting and filtering potential user biases in the annotation.
 
 <a name="screenshot"></a>
+
 ![Screenshot from 2022-11-09 18-16-50.png](./_resources/Screenshot_1.png)
 
 
@@ -100,7 +101,8 @@ To host the app on your server or VM with minimal effort:
     | `DB_CONNECTION_LIMIT` | The maximum number of connections to create at once. *(Default: 40)* | Optional |
     | `VIDEOS_DIR_PATH` | The path to the directory containing all the videos. The available formats are the video formats listed [here](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers). These videos will be decomposed into short clips that will be streamed to the user. | Required |
     | `CLIPS_DURATION` | The duration of the clips in seconds. *(Default: 4)* | Optional |
-    | `JWT_SECRET_KEY` | The string, buffer, or object containing either the secret for HMAC algorithms or the PEM-encoded private key for RSA and ECDSA. | Required |
+    | `JWT_SECRET_KEY` | The string, buffer, or object containing either the secret for HMAC algorithms or the PEM-encoded private key for RSA and ECDSA. This is used to sign the access token. | Required |
+    | `JWT_REFRESH_KEY` | The string, buffer, or object containing either the secret for HMAC algorithms or the PEM-encoded private key for RSA and ECDSA. This is used to sign the refresh token. | Required |
     | `SESSION_SECRET_KEY` | The secret used to sign the session ID cookie. This must be a string that should be not easily parsed by a human and would best be a random set of characters. | Required |
     | `SERVER_PORT` | The port on which the application will be served. *(Default: 4000)* | Optional<br>*WARNING: Become required if the port 4000 is already used.* |
     | `MAX_CLIP_DEPTH` | The maximum number of clips previously annotated by a user that can be retrieved and re-edited. *(Default: 40)* | Optional |
