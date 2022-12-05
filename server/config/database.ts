@@ -85,7 +85,11 @@ const checkIfTableExists = async (sql: string, pool: Pool) => {
                 appLogger.error(err);
                 reject(err);
             }
-            resolve(rows.length > 0);
+            if (rows) {
+                resolve(rows.length > 0);
+            } else {
+                resolve(false);
+            }
         });
     });
 };
@@ -126,10 +130,10 @@ export const createTablesIfNotExists = async (pool: Pool) => {
 
 const pool = mysql.createPool({
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '40'),
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER,
-    password: process.env.DB_PSWD,
-    database: process.env.DB_NAME,
+    host: process.env.MYSQL_HOST || 'localhost',
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
     debug: false,
 });
 

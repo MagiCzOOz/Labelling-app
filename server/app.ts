@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
@@ -45,6 +46,13 @@ const sessionStore = new MySQLStore(
     pool,
 );
 
+app.use(
+    cors({
+        origin: process.env.CORS_ORIGIN,
+        methods: ['GET', 'POST'],
+        credentials: true,
+    }),
+);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
@@ -63,7 +71,7 @@ app.use(
     }),
 );
 app.use(router);
-app.use(express.static('../client/build'));
+//app.use(express.static('../client/build'));
 app.use(errorMiddleware);
 
 app.listen(parseInt(process.env.SERVER_PORT || '4000'), '0.0.0.0', () => {

@@ -52,6 +52,13 @@ export default function VideoPlayer({ currentClip }: { currentClip: Clip | null 
                             `/videos/${currentClip.videoName}` +
                             `#t=${currentClip.startTime},${currentClip.endTime}`
                         }
+                        config={{
+                            file: {
+                                attributes: {
+                                    crossOrigin: 'use-credentials',
+                                },
+                            },
+                        }}
                         width="100%"
                         height="100%"
                         ref={playerRef}

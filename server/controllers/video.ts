@@ -41,6 +41,7 @@ export const getVideoThumbnail = (req: Request, res: Response, next: NextFunctio
             size: thumbsupply.ThumbSize.LARGE, // or ThumbSize.LARGE
             timestamp: `${parseInt(req.params.startTime)}`, // or `30` for 30 seconds
             forceCreate: true,
+            cacheDir: '/data/.cache',
         })
         .then((thumb: string) => res.status(httpStatusCodes.OK).sendFile(thumb))
         .catch((err) => {

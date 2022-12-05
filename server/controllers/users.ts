@@ -91,7 +91,7 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction) =>
             } else {
                 req.session.user = (({ id, username }) => ({ id, username }))(decoded as JwtPayload);
                 const refreshedToken = jwt.sign(req.session.user, process.env.JWT_SECRET_KEY as Secret, {
-                    expiresIn: '10s',
+                    expiresIn: '300s',
                 });
                 res.status(httpStatusCodes.OK).send({ loggedIn: true, accessToken: refreshedToken });
             }

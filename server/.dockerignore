@@ -1,0 +1,5 @@
+.git
+.cache
+**/.npm
+**/node_modules
+**/logs

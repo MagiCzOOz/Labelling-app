@@ -46,6 +46,7 @@ export default function PreviousClipThumbnail({
                             `/thumbnail/${currentClip.previousClip.videoName}` +
                             `/${currentClip.previousClip.startTime}`
                         }
+                        crossOrigin="use-credentials"
                         width="100%"
                         height="100%"
                         alt="Unable to render the thumbnail"
