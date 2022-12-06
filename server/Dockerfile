@@ -32,7 +32,11 @@ CMD ["dumb-init", "npm", "run", "dev"]
 FROM base as production
 
 # set node env to production
+ENV NODE_ENV=production
+# install dependencies
 RUN npm ci --production
+# create directory for logs
+RUN mkdir -p ./logs && chown node: ./logs
 # set user as node
 USER node
 # command run

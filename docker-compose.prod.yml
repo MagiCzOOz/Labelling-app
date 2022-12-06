@@ -16,7 +16,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./server
-      target: dev
+      target: production
     depends_on:
       - mysql_db
     ports:
@@ -24,7 +24,6 @@ services:
     env_file:
       - ./server/.env
     volumes:
-      - ./server:/home/node/app
       - ${VIDEOS_PATH}:/mnt/videos:ro
       - server_cache:/data/.cache
 
@@ -32,13 +31,11 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./client
-      target: dev
+      target: production
     ports:
       - 3000:3000
     env_file:
       - ./client/.env
-    volumes:
-      - ./client:/home/node/app
 
   nginx:
     depends_on:

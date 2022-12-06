@@ -22,11 +22,15 @@ USER node
 CMD ["dumb-init", "npm", "run", "start"]
 
 
-FROM base as production
+FROM base as builder
 
 # install the app dependencies
 RUN npm ci --production
-# set user as node
-USER node
-# command run when our image is run inside of a container
-CMD ["dumb-init", "npm", "run", "build"]
+# run the builder
+RUN npm run build
+
+
+FROM nginx as production
+EXPOSE 3000
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /home/node/app/build /usr/share/nginx/html
