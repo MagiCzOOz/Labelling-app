@@ -10,7 +10,7 @@ The tool comes with a simple, secure, and convenient authentication mechanism al
 
 <a name="screenshot"></a>
 
-![Screenshot from 2022-11-09 18-16-50.png](../_resources/Screenshot_1.png)
+![Screenshot from 2022-11-09 18-16-50.png](./_resources/Screenshot_1.png)
 
 
 Clips of an arbitrary predetermined duration can be played an indefinite number of times before being labeled by the user through a checkbox system (allowing multi-label classification).
@@ -161,7 +161,7 @@ At the start, the server will check the existence of the `clips`, `users`, and `
 If the `clips` table needs to be created (at the first start or if you decide to manually delete it or even if you change the database name in the environment file) it will be filled as follow. Every video contained in the folder `VIDEOS_DIR_PATH` will be subdivided into clips of `CLIPS_DURATION` seconds. This way a row will be added for each clip with an `id`, `videoName`, `starTime` and `endTime` column.
 In addition, a column will be created for each label as well as a `labelledBy` column. Finally, the table is shuffled to reduce the repetitiveness of the task by switching from one video to another and thus avoid some errors of inattention to the users.
 
-![Screenshot from 2022-11-09 10-23-57.png](../_resources/Screenshot_2.png)
+![Screenshot from 2022-11-09 10-23-57.png](./_resources/Screenshot_2.png)
 
 - The `labelledBy` variable can take the following values :
 
