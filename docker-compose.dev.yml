@@ -9,6 +9,10 @@ services:
       - SYS_NICE
     env_file:
       - ./server/.env
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
     volumes:
       - dbdata:/var/lib/mysql
 
@@ -18,13 +22,15 @@ services:
       context: ./server
       target: dev
     depends_on:
-      - mysql_db
+      mysql_db:
+        condition: service_healthy
     ports:
       - 4000:4000
     env_file:
       - ./server/.env
     volumes:
       - ./server:/home/node/app
+      - ignore_api:/home/node/app/node_modules/
       - ${VIDEOS_PATH}:/mnt/videos:ro
       - server_cache:/data/.cache
 
@@ -39,6 +45,7 @@ services:
       - ./client/.env
     volumes:
       - ./client:/home/node/app
+      - ignore_client:/home/node/app/node_modules/
 
   nginx:
     depends_on:
@@ -54,3 +61,5 @@ services:
 volumes:
   dbdata:
   server_cache:
+  ignore_api:
+  ignore_client:

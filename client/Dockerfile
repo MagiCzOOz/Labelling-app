@@ -12,10 +12,13 @@ COPY ["package.json", "package-lock.json*", "."]
 # copy the source code into the image
 COPY --chown=node:node . .
 
+
 FROM base as dev
 
 # install the app dependencies
 RUN npm ci
+# give perm to node for node_module/.cache folder
+RUN mkdir -p node_modules/.cache && chown node: node_modules/.cache
 # set user as node
 USER node
 # command run when our image is run inside of a container

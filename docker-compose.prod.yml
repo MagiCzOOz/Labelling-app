@@ -9,6 +9,10 @@ services:
       - SYS_NICE
     env_file:
       - ./server/.env
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
     volumes:
       - dbdata:/var/lib/mysql
 
@@ -18,7 +22,8 @@ services:
       context: ./server
       target: production
     depends_on:
-      - mysql_db
+      mysql_db:
+        condition: service_healthy
     ports:
       - 4000:4000
     env_file:
