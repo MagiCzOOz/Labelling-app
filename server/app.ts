@@ -71,6 +71,7 @@ app.use(
     }),
 );
 app.use(router);
+// uncomment the line below to serve the client build folder locally without nginx
 //app.use(express.static('../client/build'));
 app.use(errorMiddleware);
 
