@@ -84,6 +84,9 @@ $primary-color: hsl(0, 0%, 10%);
     color: red;
     padding-left: 20px;
     padding-right: 20px;
+    p {
+        display: inline-block;
+    }
 }
 
 .strongLevelButton:hover {

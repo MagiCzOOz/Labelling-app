@@ -8,7 +8,7 @@ RUN apt-get install -y --no-install-recommends dumb-init
 # create a work root directory
 WORKDIR /home/node/app
 # copy dep files into the working directory
-COPY ["package.json", "package-lock.json*", "."]
+COPY ["package.json", "package-lock.json*", "./"]
 # copy the source code into the image
 COPY --chown=node:node . .
 
@@ -16,7 +16,7 @@ COPY --chown=node:node . .
 FROM base as dev
 
 # install the app dependencies
-RUN npm ci
+RUN npm install
 # give perm to node for node_module/.cache folder
 RUN mkdir -p node_modules/.cache && chown node: node_modules/.cache
 # set user as node
@@ -28,7 +28,7 @@ CMD ["dumb-init", "npm", "run", "start"]
 FROM base as builder
 
 # install the app dependencies
-RUN npm ci --production
+RUN npm install --production
 # run the builder
 RUN npm run build
 

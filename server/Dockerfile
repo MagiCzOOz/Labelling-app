@@ -8,7 +8,7 @@ RUN apt-get install -y --no-install-recommends dumb-init
 # create a work root directory
 WORKDIR /home/node/app
 # copy dep files into the working directory
-COPY ["package.json", "package-lock.json*", "."]
+COPY ["package.json", "package-lock.json*", "./"]
 # install ffmpeg
 RUN apt-get install ffmpeg -y
 # create directory for chaching thumbnail
@@ -22,7 +22,7 @@ EXPOSE 4000
 FROM base as dev
 
 # install the app dependencies
-RUN npm ci
+RUN npm install
 # set user as node
 USER node
 # command run
@@ -34,7 +34,7 @@ FROM base as production
 # set node env to production
 ENV NODE_ENV=production
 # install dependencies
-RUN npm ci --production
+RUN npm install --production
 # create directory for logs
 RUN mkdir -p ./logs && chown node: ./logs
 # set user as node

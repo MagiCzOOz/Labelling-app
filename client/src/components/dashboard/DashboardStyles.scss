@@ -24,6 +24,7 @@
         bottom: 0;
         right: 0;
         -webkit-filter: grayscale(100);
+                filter: grayscale(100);
     }
 }
 
@@ -31,6 +32,7 @@
     cursor: pointer;
     img {
         -webkit-filter: grayscale(0);
+                filter: grayscale(0);
     }
 }
 

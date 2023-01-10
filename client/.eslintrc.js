@@ -1,44 +1,67 @@
 module.exports = {
-    parser: '@typescript-eslint/parser', // Specifies the ESLint parser
-    extends: [
-        'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
-        'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
-        'plugin:import/recommended', // Uses the recommended rules from @eslint-plugin-import
-        'plugin:import/typescript', // Needed to work with Typescript
-        'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array
+  env: {
+    browser: true,
+    es2021: true,
+  },
+  extends: [
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'airbnb',
+    'prettier',
+    'plugin:react-hooks/recommended',
+    'plugin:react/jsx-runtime',
+    'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 12,
+    sourceType: 'module',
+  },
+  plugins: ['react', '@typescript-eslint', 'react-hooks'],
+  globals: {
+    JSX: true,
+  },
+  rules: {
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': ['error'],
+    'react/jsx-filename-extension': ['warn', { extensions: ['.tsx'] }],
+    'import/extensions': ['error', 'ignorePackages', { ts: 'never', tsx: 'never' }],
+    '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+    'react/require-default-props': 'off',
+    'react/jsx-uses-react': 'error',
+    'react/jsx-uses-vars': 'error',
+    'import/prefer-default-export': 'off',
+    'react/prop-types': 'off',
+    semi: ['error', 'never'],
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'enumMember',
+        format: ['PascalCase'],
+      },
     ],
-    parserOptions: {
-        ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-        sourceType: 'module', // Allows for the use of imports
-        ecmaFeatures: {
-            jsx: true, // Allows for the parsing of JSX
-        },
+    'react/function-component-definition': [
+      'error',
+      {
+        namedComponents: 'function-declaration',
+        unnamedComponents: 'arrow-function',
+      },
+    ],
+  },
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
     },
-    rules: {
-        // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
-        // e.g. "@typescript-eslint/explicit-function-return-type": "off",
-        'import/order': [
-            'error',
-            {
-                groups: ['builtin', 'external', 'internal'],
-                pathGroups: [
-                    {
-                        pattern: 'react',
-                        group: 'external',
-                        position: 'before',
-                    },
-                ],
-                pathGroupsExcludedImportTypes: ['react'],
-                alphabetize: {
-                    order: 'asc' /* sort in ascending order. Options: ['ignore', 'asc', 'desc'] */,
-                    caseInsensitive: false /* ignore case. Options: [true, false] */,
-                },
-            },
-        ],
-    },
-    settings: {
-        react: {
-            version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
-        },
-    },
-};
+  },
+}
