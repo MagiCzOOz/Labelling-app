@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import pool from '../config/database'
+import { pool } from '../config/database'
 import { DatabaseConnectionError, UnauthorizedError } from '../models/customErrors'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { appLogger } from '../utils/logger'

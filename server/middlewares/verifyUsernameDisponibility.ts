@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import mysql from 'mysql'
 
-import pool from '../config/database'
+import { pool } from '../config/database'
 import { BadRequestError, DatabaseConnectionError } from '../models/customErrors'
 
 const verifyUsernameDisponibility = (req: Request, res: Response, next: NextFunction): void => {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import pool from '../config/database'
+import { pool } from '../config/database'
 import { LabelConfig } from '../config/labels'
 import { DatabaseConnectionError } from '../models/customErrors'
 import httpStatusCodes from '../models/httpStatusCodes'

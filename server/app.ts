@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import * as dotenv from 'dotenv'
 import express from 'express'
 import expressMySqlSession from 'express-mysql-session'
 import * as expressSession from 'express-session'
@@ -8,13 +7,12 @@ import session from 'express-session'
 import helmet from 'helmet'
 import { v4 as uuidv4 } from 'uuid'
 
-import pool, { createTablesIfNotExists } from './config/database'
+import { configObject } from './config/configObject'
+import { pool, createTablesIfNotExists } from './config/database'
 import type { Clip } from './controllers/selectClip'
 import errorMiddleware from './middlewares/errorMiddleware'
 import router from './routes/router'
 import { appLogger } from './utils/logger'
-
-dotenv.config()
 
 // Declaration merging for adding its own properties to req.session
 // (https://www.typescriptlang.org/docs/handbook/declaration-merging.html)
@@ -49,7 +47,7 @@ const sessionStore = new MySQLStore(
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: configObject.corsOrigin,
     methods: ['GET', 'POST'],
     credentials: true,
   }),
@@ -62,7 +60,7 @@ app.use(
     genid: function generateId() {
       return uuidv4() // use UUIDs for session IDs
     },
-    secret: process.env.SESSION_SECRET_KEY as string,
+    secret: configObject.sessionSecret,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -76,7 +74,7 @@ app.use(router)
 // app.use(express.static('../client/build'));
 app.use(errorMiddleware)
 
-app.listen(parseInt(process.env.SERVER_PORT || '4000', 10), '0.0.0.0', () => {
-  appLogger.info(`Server is running at port ${process.env.SERVER_PORT || '4000'}`)
+app.listen(configObject.port, '0.0.0.0', () => {
+  appLogger.info(`Server is running at port ${configObject.port}`)
   createTablesIfNotExists(pool)
 })

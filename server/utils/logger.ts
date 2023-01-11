@@ -4,7 +4,15 @@ import DailyRotateFile from 'winston-daily-rotate-file'
 const customFormat = format.combine(
   format.timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
   format.align(),
-  format.printf(i => `${i.level}: ${[i.timestamp]}: ${i.message}`),
+  format.printf(info => {
+    const { timestamp, level, message } = info
+
+    // Reformat the string to correctly indent multiline messages
+    const indentSize = `${[timestamp]} - ${level.toUpperCase()}: `.length
+    const formatedMessage = message.replace(/\n/g, `\n${' '.repeat(indentSize + 1)}`)
+
+    return `${[timestamp]} - ${level.toUpperCase()}: ${formatedMessage}`
+  }),
 )
 
 const transport = (filename: string): DailyRotateFile => {

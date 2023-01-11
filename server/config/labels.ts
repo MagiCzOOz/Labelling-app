@@ -5,7 +5,7 @@ Object.values(config.labels).forEach((group: string[]) => {
   labelNames.push(...group)
 })
 
-export type Labels = Record<typeof labelNames[number] | typeof config.issues[number], number>
+export type Labels = Record<(typeof labelNames)[number] | (typeof config.issues)[number], number>
 
 const labelFormModel = [...labelNames, ...config.issues].reduce((o, key) => ({ ...o, [key]: false }), {})
 

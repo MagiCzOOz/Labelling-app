@@ -1,3 +1,4 @@
+import { configObject } from '../config/configObject'
 import type { Clip } from '../controllers/selectClip'
 
 export const endsWithAny = (suffixes: string[], str: string): boolean => {
@@ -15,7 +16,7 @@ export const shuffleArray = (array: (string | number)[][]): (string | number)[][
 
 export const generateTimesArray = (duration: number): number[] => {
   const times = []
-  for (let i = 0; i <= duration; i += parseInt(process.env.CLIPS_DURATION || '4', 10)) {
+  for (let i = 0; i <= duration; i += configObject.clipDuration) {
     times.push(i)
   }
   return times
@@ -26,7 +27,7 @@ export const camelCaseToClassicCase = (varName: string): string => {
 }
 
 export const maintainPreviousClipsDepth = (clip: Clip, index: number): void => {
-  if (index === parseInt(process.env.MAX_CLIP_DEPTH || '40', 10)) {
+  if (index === configObject.previousClipDepth) {
     if (clip.previousClip) {
       // eslint-disable-next-line no-param-reassign
       clip.previousClip = null

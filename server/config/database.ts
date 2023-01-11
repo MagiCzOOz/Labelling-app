@@ -1,14 +1,15 @@
-import fs, { PathLike } from 'fs'
+import fs from 'fs'
 import { getVideoDurationInSeconds } from 'get-video-duration'
 import mysql, { Pool, MysqlError, OkPacket } from 'mysql'
 
 import { appLogger } from '../utils/logger'
 import { endsWithAny, shuffleArray, generateTimesArray } from '../utils/toolbox'
+import { configObject } from './configObject'
 import { LabelConfig } from './labels'
 
 const supportedFormat = ['.3gp', '.mpg', '.mpeg', '.mp4', '.m4v', '.m4p', '.ogv', '.ogg', '.mov', '.webm']
 
-const createClipsTable = (pool: Pool): Promise<boolean> => {
+function createClipsTable(pool: Pool): Promise<boolean> {
   let sql =
     'CREATE TABLE IF NOT EXISTS clips ' +
     '(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
@@ -26,7 +27,7 @@ const createClipsTable = (pool: Pool): Promise<boolean> => {
   })
 }
 
-const createUsersTable = (pool: Pool): Promise<boolean> => {
+function createUsersTable(pool: Pool): Promise<boolean> {
   const sql =
     'CREATE TABLE IF NOT EXISTS users ' +
     '(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
@@ -39,14 +40,14 @@ const createUsersTable = (pool: Pool): Promise<boolean> => {
   })
 }
 
-const generateClipsInfoFromVideos = async (): Promise<(string | number)[][]> => {
+async function generateClipsInfoFromVideos(): Promise<(string | number)[][]> {
   const numberOfLabels = [...LabelConfig.labelNames, ...LabelConfig.issueNames].length
-  const files = await fs.promises.readdir(process.env.VIDEOS_DIR_PATH as PathLike)
+  const files = await fs.promises.readdir(configObject.videosDirectoryPath)
   const values: (string | number)[][] = []
   await Promise.all(
     files.map(async (file: string) => {
       if (endsWithAny(supportedFormat, file)) {
-        const duration = await getVideoDurationInSeconds(`${process.env.VIDEOS_DIR_PATH}/${file}`)
+        const duration = await getVideoDurationInSeconds(`${configObject.videosDirectoryPath}/${file}`)
         const times = generateTimesArray(duration)
         for (let i = 0; i < times.length - 1; i += 1) {
           values.push([file, times[i], times[i + 1], 0, ...Array(numberOfLabels).fill(-1)])
@@ -57,7 +58,7 @@ const generateClipsInfoFromVideos = async (): Promise<(string | number)[][]> => 
   return shuffleArray(values)
 }
 
-const fillNewClipsTable = (pool: Pool): void => {
+function fillNewClipsTable(pool: Pool): void {
   generateClipsInfoFromVideos()
     .then((values: (string | number)[][]) => {
       let sql = 'INSERT INTO clips (videoName, startTime, endTime, labelledBy,'
@@ -80,7 +81,7 @@ const fillNewClipsTable = (pool: Pool): void => {
     })
 }
 
-const checkIfTableExists = async (sql: string, pool: Pool): Promise<boolean> => {
+async function checkIfTableExists(sql: string, pool: Pool): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     pool.query(sql, (err: MysqlError, rows: string[]) => {
       if (err) {
@@ -96,7 +97,7 @@ const checkIfTableExists = async (sql: string, pool: Pool): Promise<boolean> => 
   })
 }
 
-export const createTablesIfNotExists = async (pool: Pool): Promise<void> => {
+export async function createTablesIfNotExists(pool: Pool): Promise<void> {
   const sql = 'SHOW TABLES LIKE'
   try {
     let exists = await checkIfTableExists(`${sql} "clips"`, pool)
@@ -130,13 +131,11 @@ export const createTablesIfNotExists = async (pool: Pool): Promise<void> => {
   }
 }
 
-const pool = mysql.createPool({
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '40', 10),
-  host: process.env.MYSQL_HOST || 'localhost',
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
+export const pool = mysql.createPool({
+  connectionLimit: configObject.connectionLimit,
+  host: configObject.mysqlHost,
+  user: configObject.mysqlUser,
+  password: configObject.mysqlPassword,
+  database: configObject.mysqlDB,
   debug: false,
 })
-
-export default pool

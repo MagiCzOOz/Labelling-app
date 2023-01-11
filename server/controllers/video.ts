@@ -4,9 +4,10 @@ import thumbsupply from 'thumbsupply'
 
 import { InternalError } from '../models/customErrors'
 import httpStatusCodes from '../models/httpStatusCodes'
+import { configObject } from '../config/configObject'
 
 export const videoStreaming = (req: Request, res: Response): void => {
-  const path = `${process.env.VIDEOS_DIR_PATH}/${req.params.videoName}`
+  const path = `${configObject.videosDirectoryPath}/${req.params.videoName}`
   const stat = fs.statSync(path)
   const fileSize = stat.size
   const { range } = req.headers
@@ -35,7 +36,7 @@ export const videoStreaming = (req: Request, res: Response): void => {
 }
 
 export const getVideoThumbnail = (req: Request, res: Response, next: NextFunction): void => {
-  const path = `${process.env.VIDEOS_DIR_PATH}/${req.params.videoName}`
+  const path = `${configObject.videosDirectoryPath}/${req.params.videoName}`
   thumbsupply
     .generateThumbnail(path, {
       size: thumbsupply.ThumbSize.LARGE, // or ThumbSize.LARGE

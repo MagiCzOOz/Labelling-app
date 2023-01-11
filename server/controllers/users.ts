@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt'
 import { Request, Response, NextFunction } from 'express'
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import mysql from 'mysql'
+import { configObject } from '../config/configObject'
 
-import pool from '../config/database'
+import { pool } from '../config/database'
 import {
   BadRequestError,
   InternalError,
@@ -56,10 +57,10 @@ export const login = (req: Request, res: Response, next: NextFunction): void => 
       bcrypt.compare(password, rows[0].password, (error, response) => {
         if (response) {
           const { id } = rows[0]
-          const accessToken = jwt.sign({ id, username }, process.env.JWT_SECRET_KEY as Secret, {
+          const accessToken = jwt.sign({ id, username }, configObject.jwtSecret, {
             expiresIn: '300s',
           })
-          const refreshToken = jwt.sign({ id, username }, process.env.JWT_REFRESH_KEY as Secret, {
+          const refreshToken = jwt.sign({ id, username }, configObject.jwtSecretRefresh, {
             expiresIn: '10d',
           })
           // req.session.user = (({ id, username }) => ({ id, username }))(rows[0])
@@ -85,12 +86,12 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
   if (!token) {
     next(new UnauthorizedError('Unable to find a refresh token. Please, try to re-authenticate correctly', true))
   } else {
-    jwt.verify(token, process.env.JWT_REFRESH_KEY as Secret, (err, decoded) => {
+    jwt.verify(token, configObject.jwtSecretRefresh, (err, decoded) => {
       if (err) {
         next(new BadRequestError('Request made with a bad refresh token.', true))
       } else {
         req.session.user = (({ id, username }) => ({ id, username }))(decoded as JwtPayload)
-        const refreshedToken = jwt.sign(req.session.user, process.env.JWT_SECRET_KEY as Secret, {
+        const refreshedToken = jwt.sign(req.session.user, configObject.jwtSecret, {
           expiresIn: '300s',
         })
         res.status(httpStatusCodes.OK).send({ loggedIn: true, accessToken: refreshedToken })

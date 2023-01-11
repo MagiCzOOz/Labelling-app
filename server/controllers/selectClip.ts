@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 
-import pool from '../config/database'
+import { pool } from '../config/database'
 import type { Labels } from '../config/labels'
 import { DatabaseConnectionError, UnauthorizedError } from '../models/customErrors'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { maintainPreviousClipsDepth } from '../utils/toolbox'
 
-export type Clip = {
+export interface Clip {
   id: number
   videoName: string
   startTime: number
