@@ -1,23 +1,16 @@
 import bcrypt from 'bcrypt'
 import { Request, Response, NextFunction } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import mysql from 'mysql'
 import { configObject } from '../config/configObject'
 
-import { pool } from '../config/database'
-import {
-  BadRequestError,
-  InternalError,
-  DatabaseConnectionError,
-  UnauthorizedError,
-  NotFoundError,
-} from '../models/customErrors'
+import { BadRequestError, InternalError, UnauthorizedError, NotFoundError } from '../models/customErrors'
+import { UserModel } from '../models/databaseModels'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { authLogger } from '../utils/logger'
 
 const saltRounds = 10
 
-export const register = (req: Request, res: Response, next: NextFunction): void => {
+export function register(req: Request, res: Response, next: NextFunction): void {
   const { username, password, confirmPassword } = req.body
   if (password !== confirmPassword) {
     next(new BadRequestError('Password and Confirm Password do not match', true))
@@ -26,19 +19,18 @@ export const register = (req: Request, res: Response, next: NextFunction): void 
       if (error) {
         next(new InternalError(error.message, true))
       }
-      const sql = mysql.format('INSERT INTO users (username, password) VALUES (?,?);', [username, hash])
-      pool.query(sql, err => {
-        if (err) {
-          next(new DatabaseConnectionError(err.message, true))
-        }
+      try {
+        await UserModel.create({ username, password: hash })
         authLogger.info(`User ${username} successfully added.`)
         res.status(httpStatusCodes.CREATED).send({ message: 'User successfully added.' })
-      })
+      } catch (err) {
+        next(err)
+      }
     })
   }
 }
 
-export const getUser = (req: Request, res: Response, next: NextFunction): void => {
+export function getUser(req: Request, res: Response, next: NextFunction): void {
   if (req.session.user) {
     res.status(httpStatusCodes.OK).send({ loggedIn: true })
   } else {
@@ -46,24 +38,23 @@ export const getUser = (req: Request, res: Response, next: NextFunction): void =
   }
 }
 
-export const login = (req: Request, res: Response, next: NextFunction): void => {
+export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { username, password } = req.body
-  const sql = mysql.format('SELECT * FROM users WHERE username = ?;', username)
-  pool.query(sql, (err, rows) => {
-    if (err) {
-      next(new DatabaseConnectionError(err.message, true))
-    }
-    if (rows.length > 0) {
-      bcrypt.compare(password, rows[0].password, (error, response) => {
+  try {
+    const findUser = await UserModel.findOne({ where: { username } })
+    if (findUser === null) {
+      next(new NotFoundError("Username doesn't exist.", true))
+    } else {
+      const userFound = findUser.toJSON()
+      bcrypt.compare(password, userFound.password, (error, response) => {
         if (response) {
-          const { id } = rows[0]
+          const { id } = userFound
           const accessToken = jwt.sign({ id, username }, configObject.jwtSecret, {
             expiresIn: '300s',
           })
           const refreshToken = jwt.sign({ id, username }, configObject.jwtSecretRefresh, {
             expiresIn: '10d',
           })
-          // req.session.user = (({ id, username }) => ({ id, username }))(rows[0])
           req.session.user = { id, username }
           authLogger.info(`User ${req.session.user.id} successfully logged in.`)
           res.status(httpStatusCodes.OK).send({
@@ -75,13 +66,13 @@ export const login = (req: Request, res: Response, next: NextFunction): void => 
           next(new BadRequestError('Wrong password.', true))
         }
       })
-    } else {
-      next(new NotFoundError("Username doesn't exist.", true))
     }
-  })
+  } catch (err) {
+    next(err)
+  }
 }
 
-export const refreshToken = (req: Request, res: Response, next: NextFunction): void => {
+export function refreshAccessToken(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers['x-refresh-token'] as string
   if (!token) {
     next(new UnauthorizedError('Unable to find a refresh token. Please, try to re-authenticate correctly', true))
@@ -100,7 +91,7 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
   }
 }
 
-export const logout = (req: Request, res: Response, next: NextFunction): void => {
+export function logout(req: Request, res: Response, next: NextFunction): void {
   if (req.session.user) {
     const userId = req.session.user.id
     req.session.destroy(err => {

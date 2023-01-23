@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 
-import { pool } from '../config/database'
 import { LabelConfig } from '../config/labels'
-import { DatabaseConnectionError } from '../models/customErrors'
+import { ClipModel } from '../models/databaseModels'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { camelCaseToClassicCase } from '../utils/toolbox'
 
@@ -11,29 +10,22 @@ type LabelCount = {
   count: number
 }
 
-const getCount = (namesArray: string[]): Promise<LabelCount[]> => {
-  let sql = 'SELECT '
-  namesArray.forEach((key: string) => {
-    sql += `(SUM(CASE WHEN ${key} = 1 THEN 1 ELSE 0 END)) AS ${key},`
-  })
-  // remove last coma and add the end of the query
-  sql = `${sql.slice(0, -1)} FROM clips;`
-  return new Promise<LabelCount[]>((resolve, reject) => {
-    pool.query(sql, (err, rows) => {
-      if (err) {
-        reject(new DatabaseConnectionError(err.message))
-      }
-      const row: Record<string, number> = rows[0]
-      const count: LabelCount[] = []
-      Object.entries(row).forEach(([k, v]: [string, number]) => {
-        count.push({ label: camelCaseToClassicCase(k), count: v })
+async function getCount(namesArray: string[]): Promise<LabelCount[]> {
+  const counts: LabelCount[] = []
+  await Promise.all(
+    namesArray.map(async (labelName: string) => {
+      const { count } = await ClipModel.findAndCountAll({
+        where: {
+          [labelName]: 1,
+        },
       })
-      resolve(count)
-    })
-  })
+      counts.push({ label: camelCaseToClassicCase(labelName), count })
+    }),
+  )
+  return counts
 }
 
-export const globalLabelCount = (req: Request, res: Response, next: NextFunction): void => {
+export function globalLabelCount(req: Request, res: Response, next: NextFunction): void {
   getCount(LabelConfig.labelNames)
     .then((count: LabelCount[]) => {
       res.status(httpStatusCodes.OK).send(count)
@@ -43,7 +35,7 @@ export const globalLabelCount = (req: Request, res: Response, next: NextFunction
     })
 }
 
-export const globalIssueCount = (req: Request, res: Response, next: NextFunction): void => {
+export function globalIssueCount(req: Request, res: Response, next: NextFunction): void {
   getCount(LabelConfig.issueNames)
     .then((count: LabelCount[]) => {
       res.status(httpStatusCodes.OK).send(count)

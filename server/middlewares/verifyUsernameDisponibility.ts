@@ -1,22 +1,16 @@
 import { Request, Response, NextFunction } from 'express'
-import mysql from 'mysql'
 
-import { pool } from '../config/database'
-import { BadRequestError, DatabaseConnectionError } from '../models/customErrors'
+import { BadRequestError } from '../models/customErrors'
+import { UserModel } from '../models/databaseModels'
 
-const verifyUsernameDisponibility = (req: Request, res: Response, next: NextFunction): void => {
+async function verifyUsernameDisponibility(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { username } = req.body
-  const sql = mysql.format('SELECT * FROM users WHERE username = ?;', username)
-  pool.query(sql, (err, rows) => {
-    if (err) {
-      next(new DatabaseConnectionError(err.message, true))
-    }
-    if (rows.length > 0) {
-      next(new BadRequestError('Username already exists. Please, choose another one.', true))
-    } else {
-      next()
-    }
-  })
+  const isUsed = await UserModel.findOne({ where: { username }, attributes: ['username'] })
+  if (isUsed === null) {
+    next()
+  } else {
+    next(new BadRequestError('Username already exists. Please, choose another one.', true))
+  }
 }
 
 export default verifyUsernameDisponibility

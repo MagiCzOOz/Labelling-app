@@ -1,18 +1,19 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
-import expressMySqlSession from 'express-mysql-session'
-import * as expressSession from 'express-session'
+import sequelizeStore from 'connect-session-sequelize'
 import session from 'express-session'
 import helmet from 'helmet'
 import { v4 as uuidv4 } from 'uuid'
 
 import { configObject } from './config/configObject'
-import { pool, createTablesIfNotExists } from './config/database'
+import { sequelize } from './config/database'
+import { ClipModel, UserModel } from './models/databaseModels'
 import type { Clip } from './controllers/selectClip'
 import errorMiddleware from './middlewares/errorMiddleware'
 import router from './routes/router'
 import { appLogger } from './utils/logger'
+import { generateClipsInfoFromVideos } from './utils/toolbox'
 
 // Declaration merging for adding its own properties to req.session
 // (https://www.typescriptlang.org/docs/handbook/declaration-merging.html)
@@ -26,24 +27,32 @@ declare module 'express-session' {
   }
 }
 
+// Connect to the db and create the table Clips and Users if needed
+sequelize
+  .authenticate()
+  .then(async () => {
+    appLogger.info('Connection to the database has been established successfully.')
+
+    await ClipModel.sync()
+    const rows = await ClipModel.findAll()
+    if (rows.length === 0) {
+      const rawClips = await generateClipsInfoFromVideos()
+      const newRows = await ClipModel.bulkCreate(rawClips)
+      appLogger.info(`Clips table created and fill with ${newRows.length} clips.`)
+    }
+
+    await UserModel.sync()
+  })
+  .catch(error => {
+    appLogger.error('Unable to connect to the database: ', error)
+    throw error
+  })
+
 const app = express()
 
-const MySQLStore = expressMySqlSession(expressSession)
-const sessionStore = new MySQLStore(
-  {
-    expiration: 86400000,
-    createDatabaseTable: true,
-    schema: {
-      tableName: 'sessions',
-      columnNames: {
-        session_id: 'session_id',
-        expires: 'expires',
-        data: 'data',
-      },
-    },
-  },
-  pool,
-)
+const SequelizeStore = sequelizeStore(session.Store)
+const sessionStore = new SequelizeStore({ db: sequelize })
+sessionStore.sync()
 
 app.use(
   cors({
@@ -76,5 +85,4 @@ app.use(errorMiddleware)
 
 app.listen(configObject.port, '0.0.0.0', () => {
   appLogger.info(`Server is running at port ${configObject.port}`)
-  createTablesIfNotExists(pool)
 })

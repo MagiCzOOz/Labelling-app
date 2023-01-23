@@ -3,7 +3,6 @@ import './App.scss'
 
 import applyFetchInterceptor from './api/applyFetchInterceptor'
 import fetchUserCredentials from './api/fetchUserCredentials'
-import VideoPlayer from './components/video_player/VideoPlayer'
 import Footer from './components/Footer'
 import Header from './components/Header'
 import Dashboard from './components/dashboard/Dashboard'
@@ -11,6 +10,7 @@ import LabelForm from './components/form/LabelForm'
 import useLabels from './components/form/useLabels'
 import UserForm from './components/login/UserForm'
 import useClip from './components/video_player/useClip'
+import VideoPlayer from './components/video_player/VideoPlayer'
 
 export type LabelConfig = {
   labels: Record<string, string[]>

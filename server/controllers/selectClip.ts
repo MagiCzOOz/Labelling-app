@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
+import { Op, WhereOperators } from 'sequelize'
 
-import { pool } from '../config/database'
 import type { Labels } from '../config/labels'
-import { DatabaseConnectionError, UnauthorizedError } from '../models/customErrors'
+import { UnauthorizedError } from '../models/customErrors'
+import { ClipModel } from '../models/databaseModels'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { maintainPreviousClipsDepth } from '../utils/toolbox'
 
@@ -16,21 +17,17 @@ export interface Clip {
   previousClip?: Clip | null
 }
 
-const setClipAsUsed = async (userId: number, clipId: number): Promise<boolean> => {
-  const sql = `UPDATE clips SET labelledBy=-${userId} WHERE id=${clipId}`
-  return new Promise<boolean>((resolve, reject) => {
-    pool.query(sql, err => {
-      if (err) {
-        reject(new DatabaseConnectionError(err.message))
-      }
-      resolve(true)
-    })
+async function getClip(labelledByValue: number | WhereOperators, previousClip: Clip | undefined): Promise<Clip | null> {
+  const findClip = await ClipModel.findOne({
+    where: {
+      labelledBy: labelledByValue,
+    },
   })
-}
-
-const getClipFromRows = (rows: Record<string, number | string>[], previousClip: Clip | undefined): Clip => {
-  const { id, videoName, startTime, endTime, labelledBy, ...rest } = rows[0]
-  const clip: Clip = { id, videoName, startTime, endTime, labels: rest } as Clip
+  if (findClip === null) {
+    return null
+  }
+  const { id, videoName, startTime, endTime, labelledBy, createdAt, updatedAt, ...rest } = findClip.toJSON()
+  const clip: Clip = { id, videoName, startTime, endTime, labels: rest }
   if (previousClip) {
     clip.previousClip = previousClip
   }
@@ -38,46 +35,35 @@ const getClipFromRows = (rows: Record<string, number | string>[], previousClip: 
   return clip
 }
 
-const sendClip = (sql: string, req: Request, res: Response): Promise<boolean> => {
-  return new Promise<boolean>((resolve, reject) => {
-    pool.query(sql, (err, rows) => {
-      if (err) {
-        reject(new DatabaseConnectionError(err.message))
-      }
-      if (rows.length > 0) {
-        if (req.session.user) {
-          const clip = getClipFromRows(rows, req.session.previousClip)
-          setClipAsUsed(req.session.user.id, clip.id)
-            .then((status: boolean) => {
-              if (status) {
-                res.status(httpStatusCodes.OK).send(clip)
-                resolve(true)
-              }
-            })
-            .catch(error => {
-              reject(error)
-            })
-        } else reject(new UnauthorizedError('User not properly authenticated.', true))
-      } else {
-        resolve(false)
-      }
-    })
-  })
-}
-
-const selectClip = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export async function sendClip(req: Request, res: Response, next: NextFunction): Promise<void> {
   if (req.session.user) {
     try {
-      const sql = 'SELECT * FROM clips WHERE labelledBy'
-      let tag = `=-${req.session.user.id}`
-      let status = await sendClip(sql + tag, req, res)
-      if (!status) {
-        tag = '=0'
-        status = await sendClip(sql + tag, req, res)
-        if (!status) {
-          tag = '<0'
-          status = await sendClip(sql + tag, req, res)
-        }
+      // send a clip that has been already send to this user before
+      const clipAlreadySend = await getClip(-req.session.user.id, req.session.previousClip)
+      if (clipAlreadySend !== null) {
+        res.status(httpStatusCodes.OK).send(clipAlreadySend)
+        return
+      }
+      // ... or a new clip that has never been send
+      const newClip = await getClip(0, req.session.previousClip)
+      if (newClip !== null) {
+        // set clip as used before send it
+        await ClipModel.update(
+          { labelledBy: -req.session.user.id },
+          {
+            where: {
+              id: newClip.id,
+            },
+          },
+        )
+        res.status(httpStatusCodes.OK).send(newClip)
+        return
+      }
+      // ... or a clip that has been send to another user but never labelled
+      const lastUncompleteClip = await getClip({ [Op.lt]: 0 }, req.session.previousClip)
+      if (lastUncompleteClip !== null) {
+        res.status(httpStatusCodes.OK).send(lastUncompleteClip)
+        return
       }
     } catch (err) {
       next(err)
@@ -86,5 +72,3 @@ const selectClip = async (req: Request, res: Response, next: NextFunction): Prom
     next(new UnauthorizedError('User not properly authenticated.', true))
   }
 }
-
-export default selectClip
