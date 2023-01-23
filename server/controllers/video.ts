@@ -25,6 +25,7 @@ export function partVideoStreaming(req: Request, res: Response): void {
     .pipe(res, { end: true })
 }
 
+// This function is not used as the current state of the App
 export function fullVideoStreaming(req: Request, res: Response): void {
   const path = `${configObject.videosDirectoryPath}/${req.params.videoName}`
   const stat = fs.statSync(path)
@@ -54,7 +55,7 @@ export function fullVideoStreaming(req: Request, res: Response): void {
   }
 }
 
-export const getVideoThumbnail = (req: Request, res: Response, next: NextFunction): void => {
+export function getVideoThumbnail(req: Request, res: Response, next: NextFunction): void {
   const path = `${configObject.videosDirectoryPath}/${req.params.videoName}`
   thumbsupply
     .generateThumbnail(path, {
