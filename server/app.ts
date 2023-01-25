@@ -8,12 +8,11 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { configObject } from './config/configObject'
 import { sequelize } from './config/database'
-import { ClipModel, UserModel } from './models/databaseModels'
 import type { Clip } from './controllers/selectClip'
 import errorMiddleware from './middlewares/errorMiddleware'
 import router from './routes/router'
 import { appLogger } from './utils/logger'
-import { generateClipsInfoFromVideos } from './utils/toolbox'
+import { connectAndSyncDB } from './utils/connectAndSyncDB'
 
 // Declaration merging for adding its own properties to req.session
 // (https://www.typescriptlang.org/docs/handbook/declaration-merging.html)
@@ -28,25 +27,7 @@ declare module 'express-session' {
 }
 
 // Connect to the db and create the table Clips and Users if needed
-sequelize
-  .authenticate()
-  .then(async () => {
-    appLogger.info('Connection to the database has been established successfully.')
-
-    await ClipModel.sync()
-    const rows = await ClipModel.findAll()
-    if (rows.length === 0) {
-      const rawClips = await generateClipsInfoFromVideos()
-      const newRows = await ClipModel.bulkCreate(rawClips)
-      appLogger.info(`Clips table created and fill with ${newRows.length} clips.`)
-    }
-
-    await UserModel.sync()
-  })
-  .catch(error => {
-    appLogger.error('Unable to connect to the database: ', error)
-    throw error
-  })
+connectAndSyncDB()
 
 const app = express()
 

@@ -15,19 +15,25 @@ export type Clip = {
 }
 
 export default function VideoPlayer({ currentClip }: { currentClip: Clip | null }): ReactElement {
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+
   return (
     <div className="videoPlayer">
       {currentClip ? (
         <div className="reactPlayer">
-          <video controls id="player" crossOrigin="use-credentials" width="100%" height="100%" preload="metadata">
-            <source
-              src={
-                `${process.env.REACT_APP_BASE_URL}/videos/${currentClip.videoName}` +
-                `/${currentClip.startTime}/${currentClip.endTime}`
-              }
-              type="video/mp4"
-            />
-          </video>
+          <video
+            controls
+            id="player"
+            ref={videoRef}
+            crossOrigin="use-credentials"
+            width="100%"
+            height="100%"
+            preload="metadata"
+            src={
+              `${process.env.REACT_APP_BASE_URL}/videos/${currentClip.videoName}` +
+              `/${currentClip.startTime}/${currentClip.endTime}`
+            }
+          />
         </div>
       ) : (
         <VideoLoader />

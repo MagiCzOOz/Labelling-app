@@ -13,5 +13,6 @@ export const LabelConfig = {
   labels: config.labels,
   labelNames,
   issueNames: config.issues,
+  totalLabelNames: [...labelNames, ...config.issues],
   labelFormModel,
 }

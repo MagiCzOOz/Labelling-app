@@ -8,6 +8,7 @@ const initialConfigState = {
   issues: {},
   labelNames: [],
   issueNames: [],
+  totalLabelNames: [],
   labelFormModel: {},
 }
 

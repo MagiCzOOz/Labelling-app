@@ -16,6 +16,7 @@ export type LabelConfig = {
   labels: Record<string, string[]>
   labelNames: string[]
   issueNames: string[]
+  totalLabelNames: string[]
   labelFormModel: Record<string, boolean>
 }
 

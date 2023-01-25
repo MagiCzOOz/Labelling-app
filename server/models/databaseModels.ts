@@ -14,7 +14,7 @@ const labels = [...LabelConfig.labelNames, ...LabelConfig.issueNames].reduce(
   {},
 )
 
-export const ClipModel = sequelize.define('Clip', {
+export const ClipModel = sequelize.define('clip', {
   videoName: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -34,7 +34,7 @@ export const ClipModel = sequelize.define('Clip', {
   ...labels,
 })
 
-export const UserModel = sequelize.define('User', {
+export const UserModel = sequelize.define('user', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
