@@ -18,6 +18,6 @@ export default async function fetchRegister(credentials: UserCredentials): Promi
     const result = response.json()
     return result
   } catch (err) {
-    throw new Error(err as string)
+    throw new Error(`${err}`)
   }
 }

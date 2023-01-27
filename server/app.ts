@@ -13,6 +13,7 @@ import errorMiddleware from './middlewares/errorMiddleware'
 import router from './routes/router'
 import { appLogger } from './utils/logger'
 import { connectAndSyncDB } from './utils/connectAndSyncDB'
+import verifyToken from './middlewares/verifyToken'
 
 // Declaration merging for adding its own properties to req.session
 // (https://www.typescriptlang.org/docs/handbook/declaration-merging.html)
@@ -25,9 +26,6 @@ declare module 'express-session' {
     previousClip: Clip
   }
 }
-
-// Connect to the db and create the table Clips and Users if needed
-connectAndSyncDB()
 
 const app = express()
 
@@ -59,11 +57,15 @@ app.use(
     },
   }),
 )
+app.use('/api', verifyToken)
 app.use(router)
 // uncomment the line below to serve the client build folder locally without nginx
 // app.use(express.static('../client/build'));
 app.use(errorMiddleware)
 
-app.listen(configObject.port, '0.0.0.0', () => {
-  appLogger.info(`Server is running at port ${configObject.port}`)
+// Connect to the db and create the table Clips and Users if needed
+connectAndSyncDB().then(() => {
+  app.listen(configObject.port, '0.0.0.0', () => {
+    appLogger.info(`Server is running at port ${configObject.port}`)
+  })
 })

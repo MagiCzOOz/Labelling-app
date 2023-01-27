@@ -15,7 +15,7 @@ export default async function fetchUserCredentials(
       headers: {
         'Content-Type': 'application/json',
 
-        ...(method === 'GET' ? { 'x-access-token': localStorage.getItem('accessToken') || '' } : null),
+        ...(method === 'GET' ? { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } : null),
       },
 
       ...(method === 'POST' ? { body: JSON.stringify(credentials) } : {}),
@@ -30,6 +30,6 @@ export default async function fetchUserCredentials(
     const result = response.json()
     return result
   } catch (err) {
-    throw new Error(err as string)
+    throw new Error(`${err}`)
   }
 }

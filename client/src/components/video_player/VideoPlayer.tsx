@@ -4,6 +4,7 @@ import React, { ReactElement } from 'react'
 import './VideoStyles.scss'
 
 import VideoLoader from './VideoLoader'
+import fetchVideo from '../../api/fetchVideo'
 
 export type Clip = {
   id: number
@@ -16,28 +17,41 @@ export type Clip = {
 
 export default function VideoPlayer({ currentClip }: { currentClip: Clip | null }): ReactElement {
   const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [stream, setStream] = React.useState<string>()
+  const [isReady, setIsReady] = React.useState<boolean>(true)
+
+  function onReady(): void {
+    setIsReady(true)
+  }
+
+  React.useEffect(() => {
+    async function fetchStream(): Promise<void> {
+      if (currentClip) {
+        setIsReady(false)
+        setStream(await fetchVideo(currentClip))
+      }
+    }
+    fetchStream()
+  }, [currentClip])
 
   return (
     <div className="videoPlayer">
-      {currentClip ? (
-        <div className="reactPlayer">
-          <video
-            controls
-            id="player"
-            ref={videoRef}
-            crossOrigin="use-credentials"
-            width="100%"
-            height="100%"
-            preload="metadata"
-            src={
-              `${process.env.REACT_APP_BASE_URL}/videos/${currentClip.videoName}` +
-              `/${currentClip.startTime}/${currentClip.endTime}`
-            }
-          />
-        </div>
-      ) : (
-        <VideoLoader />
-      )}
+      <div className="reactPlayer">
+        <video
+          hidden={!isReady}
+          controls
+          controlsList="nodownload"
+          id="player"
+          ref={videoRef}
+          crossOrigin="use-credentials"
+          width="100%"
+          height="100%"
+          preload="auto"
+          src={stream}
+          onLoadedData={onReady}
+        />
+      </div>
+      <VideoLoader isReady={isReady} />
     </div>
   )
 }

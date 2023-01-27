@@ -14,7 +14,7 @@ export default async function fetchLabels(
       credentials: allowCredentials,
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': localStorage.getItem('accessToken') as string,
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
 
       ...(method === 'POST' ? { body: JSON.stringify({ clipLabels, clip }) } : {}),
@@ -23,10 +23,10 @@ export default async function fetchLabels(
     let endpoint = 'labelled'
     if (method === 'GET') endpoint = 'labels'
 
-    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/${endpoint}`, requestOptions)
+    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/${endpoint}`, requestOptions)
     const result = response.json()
     return result
   } catch (err) {
-    throw new Error(err as string)
+    throw new Error(`${err}`)
   }
 }

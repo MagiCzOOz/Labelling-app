@@ -7,13 +7,13 @@ export default async function fetchLogout(): Promise<string> {
       credentials: allowCredentials,
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': localStorage.getItem('accessToken') as string,
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
     }
     const response = await fetch(`${process.env.REACT_APP_BASE_URL}/logout`, requestOptions)
     const message = response.text()
     return message
   } catch (err) {
-    throw new Error(err as string)
+    throw new Error(`${err}`)
   }
 }

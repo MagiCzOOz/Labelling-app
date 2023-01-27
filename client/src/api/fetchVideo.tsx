@@ -1,6 +1,6 @@
 import { Clip } from '../components/video_player/VideoPlayer'
 
-export default async function fetchNextClip(): Promise<Clip> {
+export default async function fetchVideo(currentClip: Clip): Promise<string> {
   try {
     // eslint-disable-next-line no-undef
     const allowCredentials: RequestCredentials = 'include'
@@ -11,9 +11,13 @@ export default async function fetchNextClip(): Promise<Clip> {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
     }
-    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/clip`, requestOptions)
-    const nextClip = response.json()
-    return nextClip
+    const response = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/api/videos/${currentClip.videoName}/${currentClip.startTime}/${currentClip.endTime}`,
+      requestOptions,
+    )
+    const blob = await response.blob()
+    const blobUrl = window.URL.createObjectURL(blob)
+    return blobUrl
   } catch (err) {
     throw new Error(`${err}`)
   }

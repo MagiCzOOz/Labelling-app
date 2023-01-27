@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react'
 import { MdNotInterested } from 'react-icons/md'
+import fetchThumbnail from '../../api/fetchThumbnail'
 
 import { camelCaseToClassicCase } from '../form/FormValues'
 import type { Clip } from '../video_player/VideoPlayer'
@@ -12,7 +13,9 @@ export default function PreviousClipThumbnail({
   setCurrentClip: React.Dispatch<React.SetStateAction<Clip | null>>
 }): ReactElement {
   const [previousLabels, setPreviousLabels] = React.useState<string[]>([])
+  const [imgUrl, setImgUrl] = React.useState<string>()
 
+  // set labels on thumbnail
   React.useEffect(() => {
     setPreviousLabels([])
     if (currentClip && currentClip.previousClip) {
@@ -31,6 +34,16 @@ export default function PreviousClipThumbnail({
     }
   }, [currentClip])
 
+  // fetch the thumbnail image
+  React.useEffect(() => {
+    async function fetchImg(): Promise<void> {
+      if (currentClip?.previousClip) {
+        setImgUrl(await fetchThumbnail(currentClip.previousClip))
+      }
+    }
+    fetchImg()
+  }, [currentClip])
+
   function reloadPreviousClip(): void {
     if (currentClip) setCurrentClip(currentClip.previousClip)
   }
@@ -46,10 +59,7 @@ export default function PreviousClipThumbnail({
           tabIndex={0}
         >
           <img
-            src={
-              `${process.env.REACT_APP_BASE_URL}/thumbnail/${currentClip.previousClip.videoName}` +
-              `/${currentClip.previousClip.startTime}`
-            }
+            src={imgUrl}
             crossOrigin="use-credentials"
             width="100%"
             height="100%"

@@ -50,7 +50,7 @@ function parseEnvVariables(): Environment {
     const jwtSecret = process.env.JWT_SECRET_KEY || defaultValues.jwtSecret
     const jwtSecretRefresh = process.env.JWT_REFRESH_KEY || defaultValues.jwtSecretRefresh
     const clipDuration = parseInt(process.env.CLIPS_DURATION || `${defaultValues.clipDuration}`, 10)
-    const previousClipDepth = parseInt(process.env.MAX_CLIP_DEPTH || '40', 10)
+    const previousClipDepth = parseInt(process.env.MAX_CLIP_DEPTH || `${defaultValues.port}`, 10)
     const videosDirectoryPath = process.env.VIDEOS_DIR_PATH || defaultValues.videosDirectoryPath
 
     const envVariables: Environment = {

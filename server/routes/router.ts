@@ -11,18 +11,20 @@ import verifyUsernameDisponibility from '../middlewares/verifyUsernameDisponibil
 
 const router = express.Router()
 
-router.post('/api/register', verifyUsernameDisponibility, register)
-router.post('/api/labelled', verifyToken, updateLabels)
-router.post('/api/logout', verifyToken, logout)
-router.post('/api/login', login)
+// Authentication related
+router.post('/register', verifyUsernameDisponibility, register)
+router.post('/logout', verifyToken, logout) // restricted
+router.post('/login', login)
+router.get('/token', refreshAccessToken) // restricted with the refresh JWT token
+router.get('/login', verifyToken, getUser) // restricted
 
-router.get('/api/token', refreshAccessToken)
-router.get('/api/login', verifyToken, getUser)
-router.get('/api/countLabel', verifyToken, globalLabelCount)
-router.get('/api/countIssue', verifyToken, globalIssueCount)
-router.get('/api/clip', verifyToken, sendClip)
+// API routes all restricted
+router.post('/api/labelled', updateLabels)
+router.get('/api/countLabel', globalLabelCount)
+router.get('/api/countIssue', globalIssueCount)
+router.get('/api/clip', sendClip)
 router.get('/api/videos/:videoName/:startTime/:endTime', partVideoStreaming)
 router.get('/api/thumbnail/:videoName/:startTime', getVideoThumbnail)
-router.get('/api/labels', verifyToken, sendLabels)
+router.get('/api/labels', sendLabels)
 
 export default router
