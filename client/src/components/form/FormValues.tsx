@@ -13,7 +13,7 @@ export default function FormValues({
   register: UseFormRegister<Record<string, boolean>>
   values: string[]
 }): ReactElement {
-  const checkboxes: JSX.Element[] = []
+  const checkboxes: ReactElement[] = []
 
   values.forEach((item: string) => {
     checkboxes.push(

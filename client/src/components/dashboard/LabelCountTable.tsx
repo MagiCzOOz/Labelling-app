@@ -1,5 +1,3 @@
-// Here we can safely disable the no-array-index-key because the table scheme remain the same between rerender
-/* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { ReactElement } from 'react'
 import { useTable, Column, TableOptions, UseTableInstanceProps } from 'react-table'
@@ -55,30 +53,33 @@ export default function LabelCountTable({
 
   const options: TableOptions<LabelCountData> = { data: labelCount, columns }
   const { getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow } = useTable(options)
+  // We have only one header and footer group
+  if (headerGroups.length !== 1) throw new Error('Should never happen')
+  if (footerGroups.length !== 1) throw new Error('Should never happen')
+  const headerGroup = headerGroups[0]
+  const footerGroup = footerGroups[0]
   let tableClassName = 'labelContainer'
   if (issues) tableClassName = 'issueContainer'
   const tableHeader = (
     <thead>
-      {headerGroups.map((headerGroup, i) => (
-        <tr {...headerGroup.getHeaderGroupProps()} key={i}>
-          {headerGroup.headers.map((column, j) => (
-            <th {...column.getHeaderProps()} key={j}>
-              {column.render('Header')}{' '}
-            </th>
-          ))}
-        </tr>
-      ))}
+      <tr {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map(column => (
+          <th {...column.getHeaderProps()} key={`header_${column.id}`}>
+            {column.render('Header')}{' '}
+          </th>
+        ))}
+      </tr>
     </thead>
   )
   const tableBody = (
     <tbody {...getTableBodyProps()}>
-      {rows.map((row, i) => {
+      {rows.map(row => {
         prepareRow(row)
         return (
-          <tr {...row.getRowProps()} key={i}>
-            {row.cells.map((cell, j) => {
+          <tr {...row.getRowProps()} key={row.id}>
+            {row.cells.map(cell => {
               return (
-                <td {...cell.getCellProps()} key={j}>
+                <td {...cell.getCellProps()} key={`${cell.row.id}_${cell.column.id}`}>
                   {cell.render('Cell')}
                 </td>
               )
@@ -90,15 +91,13 @@ export default function LabelCountTable({
   )
   const tableFooter = (
     <tfoot>
-      {footerGroups.map((group, i) => (
-        <tr {...group.getFooterGroupProps()} key={i}>
-          {group.headers.map((column, j) => (
-            <td {...column.getFooterProps()} key={j}>
-              {column.render('Footer')}
-            </td>
-          ))}
-        </tr>
-      ))}
+      <tr {...footerGroup.getFooterGroupProps()}>
+        {footerGroup.headers.map(column => (
+          <td {...column.getFooterProps()} key={`footer_${column.id}`}>
+            {column.render('Footer')}
+          </td>
+        ))}
+      </tr>
     </tfoot>
   )
 

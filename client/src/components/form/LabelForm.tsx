@@ -37,7 +37,7 @@ export default function LabelForm({
     }
   }
 
-  const radioOptions: JSX.Element[] = []
+  const radioOptions: ReactElement[] = []
   Object.keys(labelConfig.labels).forEach((group: string) => {
     radioOptions.push(
       <div className="radioOptions" key={group}>
@@ -46,7 +46,7 @@ export default function LabelForm({
     )
   })
 
-  const buttons: JSX.Element[] = []
+  const buttons: ReactElement[] = []
   labelConfig.issueNames.forEach((issue: string, index: number) => {
     buttons.push(
       <FormButtons

@@ -24,7 +24,7 @@ export default function FormButtons({
   defaultValues: Record<string, boolean>
 }): ReactElement {
   let lvl = 'weak'
-  let icon: JSX.Element | null = null
+  let icon: ReactElement | null = null
   if (level === 0) {
     lvl = 'strong'
     icon = <FaTrash size={18} />
