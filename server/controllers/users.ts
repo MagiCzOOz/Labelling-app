@@ -74,7 +74,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 
 export function refreshAccessToken(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers.authorization
-  if (!token) {
+  if (token === undefined) {
     next(new UnauthorizedError('Unable to find a refresh token. Please, try to re-authenticate correctly', true))
   } else {
     jwt.verify(token.split(' ')[1], configObject.jwtSecretRefresh, (err, decoded) => {

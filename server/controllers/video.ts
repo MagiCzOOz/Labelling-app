@@ -7,22 +7,26 @@ import { InternalError } from '../models/customErrors'
 import httpStatusCodes from '../models/httpStatusCodes'
 import { configObject } from '../config/configObject'
 
-export function partVideoStreaming(req: Request, res: Response): void {
+export function partVideoStreaming(req: Request, res: Response, next: NextFunction): void {
   const path = `${configObject.videosDirectoryPath}/${req.params.videoName}`
-  const startTime = parseInt(req.params.startTime, 10)
-  const endTime = parseInt(req.params.endTime, 10)
-  res.setHeader('Content-Type', 'video/mp4')
-  ffmpeg(path)
-    .outputOptions([
-      '-f mp4',
-      `-ss ${startTime}`,
-      `-to ${endTime}`,
-      '-movflags frag_keyframe+empty_moov',
-      '-c:v libx264',
-      '-c:a aac',
-      '-strict -2',
-    ])
-    .pipe(res, { end: true })
+  try {
+    const startTime = parseInt(req.params.startTime, 10)
+    const endTime = parseInt(req.params.endTime, 10)
+    res.setHeader('Content-Type', 'video/mp4')
+    ffmpeg(path)
+      .outputOptions([
+        '-f mp4',
+        `-ss ${startTime}`,
+        `-to ${endTime}`,
+        '-movflags frag_keyframe+empty_moov',
+        '-c:v libx264',
+        '-c:a aac',
+        '-strict -2',
+      ])
+      .pipe(res, { end: true })
+  } catch (err) {
+    next(new InternalError(`${err}`))
+  }
 }
 
 // This function is not used as the current state of the App
